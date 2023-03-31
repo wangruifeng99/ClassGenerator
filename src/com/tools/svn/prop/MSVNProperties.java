@@ -2,6 +2,7 @@ package com.tools.svn.prop;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -57,6 +58,8 @@ public class MSVNProperties {
             } else {
                 outputCodeDir = outputDir + "\\code";
             }
+            username = prop.getProperty("username");
+            password = prop.getProperty("password");
         } catch (Exception e) {
             System.out.println("≈‰÷√º”‘ÿ ß∞‹:svn.properties");
             System.exit(0);
@@ -104,6 +107,7 @@ public class MSVNProperties {
             }
             realRevisions.add(Long.parseLong(realRevision));
         }
+        Collections.sort(realRevisions);
         revisions = realRevisions.toArray(new Long[0]);
     }
 }
