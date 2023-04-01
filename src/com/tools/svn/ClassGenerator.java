@@ -26,7 +26,7 @@ public class ClassGenerator {
                 System.exit(0);
             }
             DefaultSVNOptions options = SVNWCUtil.createDefaultOptions(true);
-            SVNClientManager clientManager = SVNClientManager.newInstance(options, MSVNProperties.username, MSVNProperties.password);
+            SVNClientManager clientManager = SVNClientManager.newInstance(options);
             Collection<SVNRevisionRange> revisionList = new ArrayList<>();
             Long[] revisions = MSVNProperties.revisions;
             for(Long revision: revisions) {
