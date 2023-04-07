@@ -31,7 +31,8 @@ public class SVNLocalFileGenerator {
         SVNClientManager clientManager = SVNClientManager.newInstance();
         SVNStatusClient statusClient = clientManager.getStatusClient();
         try {
-            statusClient.doStatus(new File(path), SVNRevision.WORKING, SVNDepth.INFINITY, false, true, false, false, status -> {
+            statusClient.doStatus(new File(path), SVNRevision.WORKING, SVNDepth.INFINITY,
+                    false, true, false, false, status -> {
                 SVNStatusType nodeStatus = status.getNodeStatus();
                 if (this.statusTypeList == null || this.statusTypeList.contains(nodeStatus)) {
                     SVNLocalFile localFile = new SVNLocalFile();

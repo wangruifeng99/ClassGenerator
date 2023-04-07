@@ -6,6 +6,14 @@ public class SVNLocalFile {
     String absFileName;
     SVNStatusType status;
 
+    public SVNLocalFile() {
+    }
+
+    public SVNLocalFile(String absFileName, SVNStatusType status) {
+        this.absFileName = absFileName;
+        this.status = status;
+    }
+
     public String getAbsFileName() {
         return absFileName;
     }
