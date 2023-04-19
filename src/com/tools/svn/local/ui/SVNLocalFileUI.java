@@ -138,10 +138,10 @@ public class SVNLocalFileUI extends JFrame{
 //        add(panel);
         textArea = new JTextArea();
         textArea.setEditable(false);
-        hostPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+        mainPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
         // 将 JPanel 添加到 JFrame 中
 //        add(hostPanel);
-        mainPanel.add(hostPanel, BorderLayout.CENTER);
+        mainPanel.add(hostPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
         // 设置窗口关闭操作和可见性
