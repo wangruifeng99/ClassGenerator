@@ -15,6 +15,8 @@ public class SVNLocalModifiedFileGenerator extends SVNLocalFileGenerator{
         list.add(SVNStatusType.STATUS_DELETED);
         list.add(SVNStatusType.STATUS_MISSING);
         list.add(SVNStatusType.STATUS_ADDED);
+        list.add(SVNStatusType.STATUS_REPLACED);
+        list.add(SVNStatusType.STATUS_CONFLICTED);
         setStatusTypeList(list);
     }
 }
