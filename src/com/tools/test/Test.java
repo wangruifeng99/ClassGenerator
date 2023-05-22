@@ -62,11 +62,7 @@ public class Test {
 
     public static List<ServerHost> getHosts() {
         List<ServerHost> hosts = new ArrayList<>();
-        hosts.add(new ServerHost("全天候APP1", "10.110.80.132", "testuser", "testuser1"));
-        hosts.add(new ServerHost("全天候APP2", "10.110.80.130", "testapp", "testapp1"));
-        hosts.add(new ServerHost("全天候回报", "10.110.80.130", "hbapp", "hbapp1"));
-//        hosts.add(new ServerHost("全天候Algo", "10.95.128.64", "testapp", "F)^ASm%TJl96"));
-        hosts.add(new ServerHost("全天候合规", "10.110.80.132", "cplapp", "cplapp1"));
+
         return hosts;
     }
 }
