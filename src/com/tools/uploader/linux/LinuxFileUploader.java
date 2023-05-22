@@ -1,4 +1,4 @@
-package com.tools.linux;
+package com.tools.uploader.linux;
 
 import com.jcraft.jsch.*;
 import com.tools.svn.bean.SVNDeployFile;
@@ -45,10 +45,10 @@ public class LinuxFileUploader implements FileUploader {
         startCounter();
         int port = 22; // SSH端口号，默认是22
 
-        JSch jsch = new JSch();
         for (ServerHost serverHost: serverHosts) {
             pool.execute(() -> {
                 try {
+                    JSch jsch = new JSch();
                     // 创建SSH会话
                     Session session = jsch.getSession(serverHost.getUser(), serverHost.getIp(), port);
                     session.setPassword(serverHost.getPassword());
@@ -58,18 +58,22 @@ public class LinuxFileUploader implements FileUploader {
                     Channel channel = session.openChannel("sftp");
                     channel.connect();
                     ChannelSftp sftp = (ChannelSftp) channel;
+//                    ChannelExec exec = (ChannelExec) channel;
                     flushToTextArea(serverHost.getName() + " 开始备份\n");
                     // 备份修改的文件
                     for (SVNDeployFile file: binaryFiles.getModifyFiles()) {
-                        fileBackup(file, serverHost, sftp);
+                        // TODO 不能用这个方法备份
+//                        fileBackup(file, serverHost, sftp);
                     }
                     // 备份并删除文件
                     for (SVNDeployFile file: binaryFiles.getDeleteFiles()) {
-                        fileBackup(file, serverHost, sftp);
-//                        sftp.rm(file.getRemoteFile()); // 删除文件
+//                        fileBackup(file, serverHost, sftp);
+                        String remoteFilePath = file.getRemoteFile().replace("${hostName}", serverHost.getUser());
+                        flushToTextArea(serverHost.getName() + " " + remoteFilePath + " 开始删除\n");
+                        sftp.rm(remoteFilePath); // 删除文件
                     }
                     for (SVNDeployFile file: binaryFiles.getModifyFiles()) {
-                        String remoteFilePath = file.getRemoteFile();
+                        String remoteFilePath = file.getRemoteFile().replace("${hostName}", serverHost.getUser());
                         // 创建目录
                         try {
                             sftp.cd(remoteFilePath.substring(0, remoteFilePath.lastIndexOf("/")));
@@ -93,7 +97,7 @@ public class LinuxFileUploader implements FileUploader {
                         File local = new File(file.getLocalFile());
                         if (local.isFile()) {
                             flushToTextArea(serverHost.getName() + " " + file.getLocalFile() + " 开始上传\n");
-                            sftp.put(new FileInputStream(local), file.getRemoteFile());
+                            sftp.put(new FileInputStream(local), remoteFilePath);
                             flushToTextArea(serverHost.getName() + " " + file.getLocalFile() + " 上传成功\n");
                         } else {
                             flushToTextArea(serverHost.getName() + " " + file.getLocalFile() + " 本地文件不存在或不是文件\n");
@@ -103,7 +107,7 @@ public class LinuxFileUploader implements FileUploader {
                     sftp.exit();
                     channel.disconnect();
                     session.disconnect();
-                    flushToTextArea(serverHost.getName() + " 发布成功" + " \n");
+                    flushToTextArea(serverHost.getName() + " 发布完成" + " \n");
                     successCounter++;
                 } catch (JSchException | FileNotFoundException | SftpException e) {
                     flushToTextArea(serverHost.getName() + " " + e.getMessage() + " \n");
@@ -157,8 +161,9 @@ public class LinuxFileUploader implements FileUploader {
     }
 
     public void fileBackup(SVNDeployFile file, ServerHost serverHost, ChannelSftp sftp) throws SftpException {
-        String remoteFilePath = file.getRemoteFile();
-        String backupPath = file.getBackupFile();
+        String remoteFilePath = file.getRemoteFile().replace("${hostName}", serverHost.getUser());
+        String backupPath = file.getBackupFile().replace("${hostName}", serverHost.getUser());
+
         flushToTextArea(serverHost.getName() + " " + remoteFilePath + "-> " + backupPath + "\n");
         // 创建目录
         try {
@@ -180,13 +185,15 @@ public class LinuxFileUploader implements FileUploader {
             }
         }
         try {
+
             sftp.stat(remoteFilePath);
 //                            sftp.rm();
             // 文件已存在，备份到指定目录
             sftp.put(remoteFilePath, backupPath);
         } catch (SftpException e) {
+            e.printStackTrace();
             // 文件不存在，直接上传
-            flushToTextArea(remoteFilePath + " 无须备份\n");
+            flushToTextArea(remoteFilePath + " 无需备份\n");
         }
     }
 }

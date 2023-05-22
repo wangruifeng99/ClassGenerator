@@ -6,14 +6,15 @@ import com.tools.svn.bean.SVNLocalFile;
 import org.tmatesoft.svn.core.wc.SVNStatusType;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class SVLLocalBinaryFileGenerator {
 
     public static Map<String, String> format = new HashMap<>();
-    public static String linuxPath = "/export/home/testapp/logs/test";
+    public static String linuxPath = "/export/home/${hostName}";
 
-    public static String backupPath = "/export/home/testapp/logs/backup";
+    public static String backupPath = "/export/home/${hostName}/logs/backup";
     public static String localBaseDir = "D:\\work\\svn_repository\\AppServer";
     public static String localBinaryDir = "D:\\work\\svn_repository\\AppServer\\bin";
 
@@ -36,18 +37,20 @@ public class SVLLocalBinaryFileGenerator {
      */
     private final String binaryBaseDir;
 
-    public SVLLocalBinaryFileGenerator(List<SVNLocalFile> localFiles, String sourceBaseDir, String binaryBaseDir) {
+    public SVLLocalBinaryFileGenerator(List<SVNLocalFile> localFiles) {
         this.localFiles = localFiles;
-        this.sourceBaseDir = sourceBaseDir;
-        this.binaryBaseDir = binaryBaseDir;
+        this.sourceBaseDir = "D:\\work\\svn_repository\\AppServer\\src";;
+        this.binaryBaseDir = "D:\\work\\svn_repository\\AppServer\\bin";
     }
 
     public SVNLocalBinaryFile list() {
         if (localFiles == null) {
             localFiles = new ArrayList<>();
         }
+        String username = System.getenv("USERNAME");
         SVNLocalBinaryFile binaryFiles = new SVNLocalBinaryFile();
-        long time = new Date().getTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        String time = sdf.format(new Date());
         for (SVNLocalFile file: localFiles) {
             // 本地文件路径
             String absFileName = file.getAbsFileName();
@@ -89,7 +92,7 @@ public class SVLLocalBinaryFileGenerator {
                         deployRemoteFile = deployRemoteFile.replace(localBaseDir, linuxPath);
                         deployRemoteFile = deployRemoteFile.replace("\\", "/");
                         System.out.println("发布文件 " + deployRemoteFile);
-                        String backupFile = deployRemoteFile.replace(linuxPath, backupPath + "/" + time);
+                        String backupFile = deployRemoteFile.replace(linuxPath, backupPath + "/" + username + "/" + time);
                         SVNDeployFile svnDeployFile = new SVNDeployFile(deployLocalFile, deployRemoteFile, backupFile);
                         // 删除
                         if (SVNStatusType.STATUS_MISSING.equals(file.getStatus()) || SVNStatusType.STATUS_DELETED.equals(file.getStatus())) {

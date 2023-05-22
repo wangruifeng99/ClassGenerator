@@ -1,6 +1,6 @@
 package com.tools.svn.local.ui;
 
-import com.tools.linux.LinuxFileUploader;
+import com.tools.uploader.linux.LinuxFileUploader;
 import com.tools.svn.bean.SVNLocalBinaryFile;
 import com.tools.svn.bean.SVNLocalFile;
 import com.tools.svn.bean.ServerHost;
@@ -112,9 +112,7 @@ public class SVNLocalFileUI extends JFrame{
                     deployFiles.add(files.get(i));
                 }
             }
-            String baseDir = "D:\\work\\svn_repository\\AppServer\\src";
-            String binaryDir = "D:\\work\\svn_repository\\AppServer\\bin";
-            SVNLocalBinaryFile binaryFiles = new SVLLocalBinaryFileGenerator(deployFiles, baseDir, binaryDir).list();
+            SVNLocalBinaryFile binaryFiles = new SVLLocalBinaryFileGenerator(deployFiles).list();
             System.out.println(binaryFiles);
 
             List<ServerHost> deployHosts = new ArrayList<>();
@@ -125,7 +123,6 @@ public class SVNLocalFileUI extends JFrame{
                     deployHosts.add(hosts.get(i));
                 }
             }
-            System.out.println(deployHosts);
             LinuxFileUploader uploader = new LinuxFileUploader(binaryFiles, deployHosts);
             uploader.setTextArea(textArea);
             uploader.setButton(deployButton);
@@ -164,6 +161,9 @@ public class SVNLocalFileUI extends JFrame{
                     c.setForeground(color);
                 } else if (status.equalsIgnoreCase("delete") || status.equalsIgnoreCase("missing")) {
                     color = new Color(180, 50, 50);
+                    c.setForeground(color);
+                } else if (status.equalsIgnoreCase("added")){
+                    color = new Color(227, 65, 214);
                     c.setForeground(color);
                 } else {
                     c.setForeground(table.getForeground());

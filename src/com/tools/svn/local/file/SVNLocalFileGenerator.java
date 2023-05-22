@@ -18,8 +18,8 @@ public class SVNLocalFileGenerator {
 
     protected String path;
 
-    public SVNLocalFileGenerator() {
-        this.path = "D:\\work\\svn_repository\\AppServer";
+    public SVNLocalFileGenerator(String localPath) {
+        this.path = localPath;
     }
 
     public void setStatusTypeList(List<SVNStatusType> statusTypeList) {
