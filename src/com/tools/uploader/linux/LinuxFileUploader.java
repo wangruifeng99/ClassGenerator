@@ -58,16 +58,17 @@ public class LinuxFileUploader implements FileUploader {
                     Channel channel = session.openChannel("sftp");
                     channel.connect();
                     ChannelSftp sftp = (ChannelSftp) channel;
+
 //                    ChannelExec exec = (ChannelExec) channel;
                     flushToTextArea(serverHost.getName() + " 开始备份\n");
                     // 备份修改的文件
                     for (SVNDeployFile file: binaryFiles.getModifyFiles()) {
                         // TODO 不能用这个方法备份
-//                        fileBackup(file, serverHost, sftp);
+                        fileBackup(file, serverHost, sftp, session);
                     }
                     // 备份并删除文件
                     for (SVNDeployFile file: binaryFiles.getDeleteFiles()) {
-//                        fileBackup(file, serverHost, sftp);
+                        fileBackup(file, serverHost, sftp, session);
                         String remoteFilePath = file.getRemoteFile().replace("${hostName}", serverHost.getUser());
                         flushToTextArea(serverHost.getName() + " " + remoteFilePath + " 开始删除\n");
                         sftp.rm(remoteFilePath); // 删除文件
@@ -160,7 +161,7 @@ public class LinuxFileUploader implements FileUploader {
         });
     }
 
-    public void fileBackup(SVNDeployFile file, ServerHost serverHost, ChannelSftp sftp) throws SftpException {
+    public void fileBackup(SVNDeployFile file, ServerHost serverHost, ChannelSftp sftp, Session session) throws SftpException {
         String remoteFilePath = file.getRemoteFile().replace("${hostName}", serverHost.getUser());
         String backupPath = file.getBackupFile().replace("${hostName}", serverHost.getUser());
 
@@ -189,11 +190,20 @@ public class LinuxFileUploader implements FileUploader {
             sftp.stat(remoteFilePath);
 //                            sftp.rm();
             // 文件已存在，备份到指定目录
-            sftp.put(remoteFilePath, backupPath);
+            // 创建SSH通道
+            Channel execChannel = session.openChannel("exec");
+            ChannelExec exec = (ChannelExec) execChannel;
+            String command = String.format("cp %s %s", remoteFilePath, backupPath);
+//            sftp.put(remoteFilePath, backupPath);
+            exec.setCommand(command);
+            exec.connect();
         } catch (SftpException e) {
             e.printStackTrace();
             // 文件不存在，直接上传
             flushToTextArea(remoteFilePath + " 无需备份\n");
+        } catch (JSchException e) {
+            e.printStackTrace();
+            flushToTextArea(remoteFilePath + " 备份失败\n");
         }
     }
 }

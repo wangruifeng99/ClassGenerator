@@ -1,17 +1,20 @@
 package com.tools.svn.local.ui;
 
-import com.tools.uploader.linux.LinuxFileUploader;
+import com.tools.svn.bean.SVNDeployFile;
 import com.tools.svn.bean.SVNLocalBinaryFile;
 import com.tools.svn.bean.SVNLocalFile;
 import com.tools.svn.bean.ServerHost;
 import com.tools.svn.local.binary.SVLLocalBinaryFileGenerator;
+import com.tools.uploader.linux.LinuxFileUploader;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.util.ArrayList;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.List;
 
 public class SVNLocalFileUI extends JFrame{
@@ -35,7 +38,7 @@ public class SVNLocalFileUI extends JFrame{
             hosts = new ArrayList<>();
         }
         setTitle("AppServer文件发布工具");
-        setSize(1200, 1000);
+        setSize(1300, 1000);
         setResizable(true);
         setLocationRelativeTo(null);
 
@@ -43,7 +46,7 @@ public class SVNLocalFileUI extends JFrame{
 
         // 创建表格模型，并添加表头
         DefaultTableModel model = new DefaultTableModel();
-        model.setColumnIdentifiers(new Object[]{"选择", "文件", "状态"});
+        model.setColumnIdentifiers(new Object[]{"选择", "文件", "状态", "最后修改时间", "已编译"});
         JTable table = new JTable(model) {
             public TableCellRenderer getCellRenderer(int row, int column) {
                 if (column == 0) { // 第一列使用CheckBox
@@ -60,9 +63,21 @@ public class SVNLocalFileUI extends JFrame{
 //        table.getColumnModel().getColumn(0).setCellRenderer(table.getDefaultRenderer(Boolean.class));
 
         table.getColumnModel().getColumn(1).setMinWidth(800); // 限制第一列的最小宽度
+        table.getColumnModel().getColumn(3).setMinWidth(120); // 限制第三列的最小宽度
         table.setDefaultEditor(Object.class, null);
+        // TODO
+        Map<String, Long> binaryTimeMap = genBinaryTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (SVNLocalFile file : files) {
-            model.addRow(new Object[]{false, file.getAbsFileName(), file.getStatus().toString()});
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(file.getLastModifyTime());
+            String lastModifyTime = file.getLastModifyTime() == 0 ? "0" : sdf.format(calendar.getTime());
+            Long binaryModifyTimeL = binaryTimeMap.get(file.getAbsFileName());
+            String binaryCompiled = "否";
+            if (binaryModifyTimeL != null && binaryModifyTimeL > file.getLastModifyTime() || !file.getAbsFileName().endsWith(".java")) {
+                binaryCompiled = "是";
+            }
+            model.addRow(new Object[]{false, file.getAbsFileName(), file.getStatus().toString(), lastModifyTime, binaryCompiled});
         }
         // 创建一个 JPanel 容器组件，并添加表格和按钮到其中
         JPanel panel = new JPanel(new BorderLayout());
@@ -173,6 +188,19 @@ public class SVNLocalFileUI extends JFrame{
             }
             return c;
         }
+    }
+
+    private Map<String, Long> genBinaryTime() {
+        Map<String, Long> result = new HashMap<>();
+        SVNLocalBinaryFile allBinaryFiles = new SVLLocalBinaryFileGenerator(files).list();
+        List<SVNDeployFile> modifyFiles = allBinaryFiles.getModifyFiles();
+        for (SVNDeployFile deployFile: modifyFiles) {
+            File file = new File(deployFile.getLocalFile());
+            if (file.exists()) {
+                result.put(deployFile.getSourceFile(), file.lastModified());
+            }
+        }
+        return result;
     }
 
 }

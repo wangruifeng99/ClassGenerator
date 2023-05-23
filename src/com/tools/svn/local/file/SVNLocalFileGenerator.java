@@ -4,6 +4,7 @@ package com.tools.svn.local.file;
 import com.tools.svn.bean.SVNLocalFile;
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNStatusClient;
@@ -37,6 +38,10 @@ public class SVNLocalFileGenerator {
                 if (this.statusTypeList == null || this.statusTypeList.contains(nodeStatus)) {
                     SVNLocalFile localFile = new SVNLocalFile();
                     String absFileName = status.getFile().getAbsolutePath();
+                    if (SVNNodeKind.DIR.equals(status.getKind())) {
+                        return;
+                    }
+                    localFile.setLastModifyTime(status.getFile().lastModified());
                     localFile.setAbsFileName(absFileName);
                     localFile.setStatus(nodeStatus);
                     list.add(localFile);

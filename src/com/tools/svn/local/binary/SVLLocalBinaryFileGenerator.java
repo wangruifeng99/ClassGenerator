@@ -3,6 +3,7 @@ package com.tools.svn.local.binary;
 import com.tools.svn.bean.SVNDeployFile;
 import com.tools.svn.bean.SVNLocalBinaryFile;
 import com.tools.svn.bean.SVNLocalFile;
+import com.tools.svn.prop.LocalProperties;
 import org.tmatesoft.svn.core.wc.SVNStatusType;
 
 import java.io.File;
@@ -12,11 +13,11 @@ import java.util.*;
 public class SVLLocalBinaryFileGenerator {
 
     public static Map<String, String> format = new HashMap<>();
-    public static String linuxPath = "/export/home/${hostName}";
+    public static String linuxPath;
 
-    public static String backupPath = "/export/home/${hostName}/logs/backup";
-    public static String localBaseDir = "D:\\work\\svn_repository\\AppServer";
-    public static String localBinaryDir = "D:\\work\\svn_repository\\AppServer\\bin";
+    public static String backupPath;
+    public static String localBaseDir;
+    public static String localBinaryDir;
 
     static {
         format.put(".java", ".class");
@@ -37,10 +38,18 @@ public class SVLLocalBinaryFileGenerator {
      */
     private final String binaryBaseDir;
 
+    static {
+        LocalProperties.init();
+        localBinaryDir = LocalProperties.compilerDir;
+        localBaseDir = LocalProperties.baseDir;
+        linuxPath = LocalProperties.linuxBase;
+        backupPath = LocalProperties.backupDir;
+    }
+
     public SVLLocalBinaryFileGenerator(List<SVNLocalFile> localFiles) {
         this.localFiles = localFiles;
-        this.sourceBaseDir = "D:\\work\\svn_repository\\AppServer\\src";;
-        this.binaryBaseDir = "D:\\work\\svn_repository\\AppServer\\bin";
+        this.sourceBaseDir = LocalProperties.baseDir + "\\src";;
+        this.binaryBaseDir = LocalProperties.compilerDir;
     }
 
     public SVNLocalBinaryFile list() {
@@ -49,7 +58,7 @@ public class SVLLocalBinaryFileGenerator {
         }
         String username = System.getenv("USERNAME");
         SVNLocalBinaryFile binaryFiles = new SVNLocalBinaryFile();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd/HHmmssSSS");
         String time = sdf.format(new Date());
         for (SVNLocalFile file: localFiles) {
             // 本地文件路径
@@ -91,9 +100,10 @@ public class SVLLocalBinaryFileGenerator {
                         String deployRemoteFile = deployLocalFile.replace(localBinaryDir, linuxPath);
                         deployRemoteFile = deployRemoteFile.replace(localBaseDir, linuxPath);
                         deployRemoteFile = deployRemoteFile.replace("\\", "/");
-                        System.out.println("发布文件 " + deployRemoteFile);
+//                        System.out.println("发布文件 " + deployRemoteFile);
                         String backupFile = deployRemoteFile.replace(linuxPath, backupPath + "/" + username + "/" + time);
                         SVNDeployFile svnDeployFile = new SVNDeployFile(deployLocalFile, deployRemoteFile, backupFile);
+                        svnDeployFile.setSourceFile(absFileName);
                         // 删除
                         if (SVNStatusType.STATUS_MISSING.equals(file.getStatus()) || SVNStatusType.STATUS_DELETED.equals(file.getStatus())) {
                             binaryFiles.addDeleteFile(svnDeployFile);

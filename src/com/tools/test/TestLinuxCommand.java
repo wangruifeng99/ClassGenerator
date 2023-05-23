@@ -16,19 +16,20 @@ public class TestLinuxCommand {
             Channel channel = session.openChannel("exec");
 //            channel.connect();
             ChannelExec exec = (ChannelExec) channel;
-            exec.setOutputStream(System.out);
+            exec.setCommand("ls -l /a");
             exec.setErrStream(System.out);
-            exec.setCommand("mv /export/home/cplapp/com/stock/businesslogic/reckoning/optimization/test/Test.class.bak /export/home/cplapp/com/stock/businesslogic/reckoning/optimization/test/Test.class");
-            OutputStream outputStream = channel.getOutputStream();
-            System.out.println(outputStream);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(channel.getInputStream()));
-            channel.connect();
+//            exec.setOutputStream(System.out);
+            exec.connect();
+            exec.setCommand("ls -l /");
+
+            exec.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(exec.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
                 System.out.println(line);
             }
             reader.close();
-            channel.disconnect();
+            exec.disconnect();
             session.disconnect();
         } catch (Throwable e) {
             e.printStackTrace();

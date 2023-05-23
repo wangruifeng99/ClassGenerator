@@ -4,6 +4,9 @@ import org.tmatesoft.svn.core.wc.SVNStatusType;
 
 public class SVNLocalFile {
     String absFileName;
+
+    long lastModifyTime;
+
     SVNStatusType status;
 
     public SVNLocalFile() {
@@ -22,6 +25,14 @@ public class SVNLocalFile {
         this.absFileName = absFileName;
     }
 
+    public long getLastModifyTime() {
+        return lastModifyTime;
+    }
+
+    public void setLastModifyTime(long lastModifyTime) {
+        this.lastModifyTime = lastModifyTime;
+    }
+
     public SVNStatusType getStatus() {
         return status;
     }
@@ -34,6 +45,7 @@ public class SVNLocalFile {
     public String toString() {
         return "SVNLocalFile{" +
                 "absFileName='" + absFileName + '\'' +
+                ", lastModifyTime='" + lastModifyTime + '\'' +
                 ", status=" + status +
                 '}';
     }

@@ -1,6 +1,7 @@
 package com.tools.svn.bean;
 
 public class SVNDeployFile {
+    private String sourceFile;
     private String localFile;
     private String remoteFile;
     private String backupFile;
@@ -9,6 +10,14 @@ public class SVNDeployFile {
         this.localFile = localFile;
         this.remoteFile = remoteFile;
         this.backupFile = backupFile;
+    }
+
+    public String getSourceFile() {
+        return sourceFile;
+    }
+
+    public void setSourceFile(String sourceFile) {
+        this.sourceFile = sourceFile;
     }
 
     public String getLocalFile() {
