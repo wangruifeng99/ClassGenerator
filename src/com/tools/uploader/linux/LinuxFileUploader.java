@@ -69,12 +69,13 @@ public class LinuxFileUploader implements FileUploader {
                     // 备份并删除文件
                     for (SVNDeployFile file: binaryFiles.getDeleteFiles()) {
                         fileBackup(file, serverHost, sftp, session);
-                        String remoteFilePath = file.getRemoteFile().replace("${hostName}", serverHost.getUser());
+
+                        String remoteFilePath = serverHost.getDeployBaseDir() + file.getRemoteFile();
                         flushToTextArea(serverHost.getName() + " " + remoteFilePath + " 开始删除\n");
                         sftp.rm(remoteFilePath); // 删除文件
                     }
                     for (SVNDeployFile file: binaryFiles.getModifyFiles()) {
-                        String remoteFilePath = file.getRemoteFile().replace("${hostName}", serverHost.getUser());
+                        String remoteFilePath = serverHost.getDeployBaseDir() + file.getRemoteFile();
                         // 创建目录
                         try {
                             sftp.cd(remoteFilePath.substring(0, remoteFilePath.lastIndexOf("/")));
@@ -162,8 +163,8 @@ public class LinuxFileUploader implements FileUploader {
     }
 
     public void fileBackup(SVNDeployFile file, ServerHost serverHost, ChannelSftp sftp, Session session) throws SftpException {
-        String remoteFilePath = file.getRemoteFile().replace("${hostName}", serverHost.getUser());
-        String backupPath = file.getBackupFile().replace("${hostName}", serverHost.getUser());
+        String remoteFilePath = serverHost.getDeployBaseDir() + file.getRemoteFile();
+        String backupPath = serverHost.getDeployBackupDir() + file.getBackupFile();
 
         flushToTextArea(serverHost.getName() + " " + remoteFilePath + "-> " + backupPath + "\n");
         // 创建目录
@@ -194,7 +195,6 @@ public class LinuxFileUploader implements FileUploader {
             Channel execChannel = session.openChannel("exec");
             ChannelExec exec = (ChannelExec) execChannel;
             String command = String.format("cp %s %s", remoteFilePath, backupPath);
-//            sftp.put(remoteFilePath, backupPath);
             exec.setCommand(command);
             exec.connect();
         } catch (SftpException e) {

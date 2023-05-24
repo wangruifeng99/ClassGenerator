@@ -16,6 +16,10 @@ public class HostProperties {
 
     public static List<String> hostPwdList;
 
+    public static List<String> hostDeployBaseDirList;
+
+    public static List<String> hostDeployBackupDirList;
+
     public static void init() {
         loadLocalProp();
     }
@@ -50,11 +54,23 @@ public class HostProperties {
                 System.out.println("host.pwdŒ¥≈‰÷√");
                 System.exit(0);
             }
+            String hostDeployBaseDir = prop.getProperty("host.deploy.baseDir");
+            if(hostDeployBaseDir == null || hostDeployBaseDir.length() == 0) {
+                System.out.println("host.deploy.baseDirŒ¥≈‰÷√");
+                System.exit(0);
+            }
+            String hostDeployBackupDir = prop.getProperty("host.deploy.backupDir");
+            if(hostDeployBackupDir == null || hostDeployBackupDir.length() == 0) {
+                System.out.println("host.deploy.backupDirŒ¥≈‰÷√");
+                System.exit(0);
+            }
             hostName = new String(hostName.getBytes(StandardCharsets.ISO_8859_1), "GBK");
             String[] hostNames = hostName.split(",");
             String[] hostIps = hostIP.split(",");
             String[] hostUsers = hostUser.split(",");
             String[] hostPwds = hostPwd.split(",");
+            String[] hostDeployBaseDirs = hostDeployBaseDir.split(",");
+            String[] hostDeployBackupDirs = hostDeployBackupDir.split(",");
             int length = hostNames.length;
             if (hostIps.length < length || hostUsers.length < length || hostPwds.length < length) {
                 System.out.println("host.properties–≈œ¢≥§∂»≤ª“ª÷¬");
@@ -63,6 +79,8 @@ public class HostProperties {
             hostIPList = Arrays.asList(hostIps);
             hostUserList = Arrays.asList(hostUsers);
             hostPwdList = Arrays.asList(hostPwds);
+            hostDeployBaseDirList = Arrays.asList(hostDeployBaseDirs);
+            hostDeployBackupDirList = Arrays.asList(hostDeployBackupDirs);
 
         } catch (Exception e) {
             System.out.println("≈‰÷√º”‘ÿ ß∞‹:host.properties");

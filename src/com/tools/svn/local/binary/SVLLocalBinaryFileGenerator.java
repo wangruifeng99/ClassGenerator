@@ -13,9 +13,6 @@ import java.util.*;
 public class SVLLocalBinaryFileGenerator {
 
     public static Map<String, String> format = new HashMap<>();
-    public static String linuxPath;
-
-    public static String backupPath;
     public static String localBaseDir;
     public static String localBinaryDir;
 
@@ -42,13 +39,11 @@ public class SVLLocalBinaryFileGenerator {
         LocalProperties.init();
         localBinaryDir = LocalProperties.compilerDir;
         localBaseDir = LocalProperties.baseDir;
-        linuxPath = LocalProperties.linuxBase;
-        backupPath = LocalProperties.backupDir;
     }
 
     public SVLLocalBinaryFileGenerator(List<SVNLocalFile> localFiles) {
         this.localFiles = localFiles;
-        this.sourceBaseDir = LocalProperties.baseDir + "\\src";;
+        this.sourceBaseDir = LocalProperties.baseDir + "\\src";
         this.binaryBaseDir = LocalProperties.compilerDir;
     }
 
@@ -70,6 +65,9 @@ public class SVLLocalBinaryFileGenerator {
             int index = Math.max(absFileName.lastIndexOf("."), 0);
             // 源文件格式
             String sourceFormat = absFileName.substring(index);
+            if (sourceFormat.equals(absFileName)) {
+                sourceFormat = "";
+            }
             // 编译后文件格式
             String binaryFormat = format.get(sourceFormat);
             // 配置文件、jar文件不需要从编译目录获取
@@ -97,11 +95,11 @@ public class SVLLocalBinaryFileGenerator {
                     if (dirFile.equals(binaryFileName + binaryFormat) || dirFile.contains(binaryFileName + "$")) {
                         // 发布文件名=文件目录+文件名
                         String deployLocalFile = binaryDir + "\\" + dirFile;
-                        String deployRemoteFile = deployLocalFile.replace(localBinaryDir, linuxPath);
-                        deployRemoteFile = deployRemoteFile.replace(localBaseDir, linuxPath);
+                        String deployRemoteFile = deployLocalFile.replace(localBinaryDir, "");
+                        deployRemoteFile = deployRemoteFile.replace(localBaseDir, "");
                         deployRemoteFile = deployRemoteFile.replace("\\", "/");
 //                        System.out.println("发布文件 " + deployRemoteFile);
-                        String backupFile = deployRemoteFile.replace(linuxPath, backupPath + "/" + username + "/" + time);
+                        String backupFile = "/" + username + "/" + time + deployRemoteFile;
                         SVNDeployFile svnDeployFile = new SVNDeployFile(deployLocalFile, deployRemoteFile, backupFile);
                         svnDeployFile.setSourceFile(absFileName);
                         // 删除
