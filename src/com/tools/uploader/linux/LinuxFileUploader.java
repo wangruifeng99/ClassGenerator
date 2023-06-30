@@ -63,7 +63,6 @@ public class LinuxFileUploader implements FileUploader {
                     flushToTextArea(serverHost.getName() + " 开始备份\n");
                     // 备份修改的文件
                     for (SVNDeployFile file: binaryFiles.getModifyFiles()) {
-                        // TODO 不能用这个方法备份
                         fileBackup(file, serverHost, sftp, session);
                     }
                     // 备份并删除文件

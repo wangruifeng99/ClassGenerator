@@ -43,12 +43,16 @@ public class RSAUtils {
      * @param text 密文
      * @return 密文
      */
-    public static String decrypt(String text) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public static String decrypt(String text) throws Exception {
         SecretKey secretKey = new SecretKeySpec(SecurityConstant.RSA_KEY.getBytes(StandardCharsets.UTF_8), "AES");
         Cipher cipher = Cipher.getInstance("AES/ECB/pkcs5padding");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
         // 解密数据, 返回明文
-        byte[] a = cipher.doFinal(Base64.getDecoder().decode(text));
-        return new String(a, StandardCharsets.UTF_8);
+        try {
+            byte[] a = cipher.doFinal(Base64.getDecoder().decode(text));
+            return new String(a, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new Exception("服务器密码或SVN密码未加密");
+        }
     }
 }
